@@ -45,7 +45,7 @@ $output = '
                     color: #000;
                 }
                 .center {
-                    text-align: center;
+                    text-align: left;
                     font-family: Arial, Helvetica, sans-serif;
                 }
             </style>
@@ -53,7 +53,7 @@ $output = '
 
         <body>
             <div class="left">
-                <h3>G-33 DEFORMED BAR x 6.00M @ 9.00M -  MANILA</h3>
+                <h3> '. $summary[0]['description'] .' </h3>
             </div>';
 
         $output .= '
@@ -78,7 +78,7 @@ $output = '
 
                         $output .= '
                             <tr>
-                                <td style="font-weight: bold; background-color: ' . $bgColor . '; color: ' . $textColor . ';">' . ($row["description"]. '%') . '</td>
+                                <td style="font-weight: bold; background-color: ' . $bgColor . '; color: ' . $textColor . ';">' . ($row["description"]) . '</td>
                                 <td class="" style="font-weight: bold; background-color: ' . $bgColor . '; color: ' . $textColor . ';">' . ($row["percentage"] ?? '') . '</td>
                                 <td class="" style="font-weight: bold; text-align: right; background-color: ' . $bgColor . '; color: ' . $textColor . ';">' . $row["Base10mm"] . '</td>
                                 <td class="" style="font-weight: bold; text-align: right; background-color: ' . $bgColor . '; color: ' . $textColor . ';">' . $row["Base12mm"] . '</td>

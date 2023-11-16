@@ -20,7 +20,6 @@
     $sql = "SELECT * FROM [tuc].[Defbars_TransList_Summary] WHERE document_id = '$document_id'";
     $stmt = $obj_admin->db->prepare($sql);
     $stmt->execute();
-
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -36,7 +35,14 @@
                             <strong class="text-left">DOCUMENT NO. <?php echo $document_id; ?></strong>
 
                             <div class="float-right">
-                                <label><strong>Created Date:</strong> <?php echo date('l, F j, Y'); ?></label>
+                                <label><strong>Created Date:</strong> 
+                                    <?php
+                                        // Assuming $result[0]['date_created'] is in the format 'Y-m-d H:i:s'
+                                        $originalDate = $result[0]['date_created'];
+                                        $formattedDate = date("F j, Y, g:i A", strtotime($originalDate));
+                                        echo $formattedDate;
+                                    ?>
+                                </label>
                             </div>
                         </div>
                             
@@ -80,18 +86,77 @@
                                     <?php if ($user_id == 59) { ?>
 
                                         <button type="button" class="btn" name="myc" value="approved" style="background-color: #39698a; color: #fff;">APPROVE</button>&nbsp;
+                                        <button type="button" class="btn" name="deny" value="deny" style="background-color: #39698a; color: #fff;">DENY</button>
 
                                     <?php } elseif ($user_id == 58) { ?>
 
                                         <button type="button" class="btn" name="hcc" value="approved" style="background-color: #39698a; color: #fff;">APPROVE</button>&nbsp;
+                                        <button type="button" class="btn" name="deny" value="deny" style="background-color: #39698a; color: #fff;">DENY</button>
+                                        
+                                    <?php } else { ?>   
+                                        
+                                        <!--Display Statement-->
 
-                                    <?php }  ?>
-
-                                    <button type="button" class="btn" name="deny" value="deny" style="background-color: #39698a; color: #fff;">DENY</button>
+                                    <?php } ?>
                                 </div>
                             </form>
                         </div>
                     </div>
+
+                    <?php if ($user_id == 1 || $user_id == 4) { ?>
+
+                        <?php
+                            $sql = "SELECT myc, hcc FROM [tuc].[For_Approval_list] WHERE document_id = '$document_id'";
+                            $stmt = $obj_admin->db->prepare($sql);
+                            $stmt->execute(); 
+                            $signature = $stmt->fetchAll(PDO::FETCH_ASSOC); 
+                        ?>
+               
+                        <div class="row">
+                            <div class="col-12 d-flex justify-content-center align-items-center">
+                                <ul class="mailbox-attachments d-flex align-items-stretch clearfix">
+
+                                    <?php if($signature[0]['hcc'] != NULL) { ?>
+                                    <li class="mr-5">
+                                        <span class="mailbox-attachment-icon has-img"><img src="assets/img/hcc.png" alt="Attachment"></span>
+                                            <div class="mailbox-attachment-info">
+                                                <hr>
+                                                <a href="#" class="mailbox-attachment-name text-sm text-center">Henry C. Cua</a>
+                                            </div>
+                                    </li>
+
+                                    <?php } else { ?>
+                                    <li class="mr-5">
+                                        <span class="mailbox-attachment-icon has-img"><img src="" alt=""></span>
+                                            <div class="mailbox-attachment-info">
+                                                <hr>
+                                                <a href="#" class="mailbox-attachment-name text-sm text-center">Henry C. Cua</a>
+                                            </div>
+                                    </li>
+                                    <?php } ?>
+                             
+                                    <?php if($signature[0]['myc'] != NULL) { ?>
+                                    <li class="mr-5">
+                                        <span class="mailbox-attachment-icon has-img"><img src="assets/img/myc.png" alt="Attachment"></span>
+                                            <div class="mailbox-attachment-info">
+                                                <hr>
+                                                <a href="#" class="mailbox-attachment-name text-sm text-center">Maria Teresa Y. Cua</a>
+                                            </div>
+                                    </li>
+
+                                    <?php } else { ?>
+                                    <li class="mr-5">
+                                        <span class="mailbox-attachment-icon has-img"><img src="" alt=""></span>
+                                            <div class="mailbox-attachment-info">
+                                                <hr>
+                                                <a href="#" class="mailbox-attachment-name text-sm text-center">Maria Teresa Y. Cua</a>
+                                            </div>
+                                    </li>
+                                    <?php } ?>
+                                </ul>
+                            </div>
+                        </div>
+                    <?php } ?> 
                 </div>
             </div>
         </div>
@@ -115,7 +180,7 @@
                         if (response === 'success') {
                             Swal.fire({
                                 title: "Success",
-                                text: "Computed price has been Approved",
+                                text: "COMPUTED PRICE HAS BEEN APPROVED",
                                 icon: "success"
                             }).then(function() {
                                 window.location = "summarylist.php"; // Redirect to another page

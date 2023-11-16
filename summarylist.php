@@ -1,33 +1,9 @@
 <?php
     require_once 'authenticate.php';
+
     include 'includes/header.php';
-
-    if (!isset($_SESSION['admin_id'])) {
-        session_destroy(); 
-        header('Location: ../');
-        exit();
-
-    } else {
-        // Assign user session data
-        $user_id = $_SESSION['admin_id'];
-        $user_name = $_SESSION['name'];
-        $user_role = $_SESSION['user_role'];
-        $department = $_SESSION['department'];
-    }
-
-        // Prepare and execute SQL queries
-        try {
-            $sql = "SELECT * FROM [tuc].[For_Approval_list] WHERE doc_status IS NULL ";
-            $stmt = $obj_admin->db->prepare($sql);
-            $stmt->execute();
-
-            $summary = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        } catch (PDOException $e) {
-            echo "Database Error: " . $e->getMessage();
-        }
-
-        include 'includes/sidebar.php';
+    include 'includes/phpFunctionList.php';
+    include 'includes/sidebar.php';
 ?>
 
 <div class="content-wrapper"><br/>
@@ -43,6 +19,16 @@
 
                         <div class="card-body">
 
+                            <form action="summarylist.php" id="main" method="get">
+                                <div class="form-group col-12 col-sm-6 col-md-4 col-lg-3 col-xl-2">                               
+                                    <select class="form-control" name="status" id="status">
+                                        <option>STATUS</option>
+                                        <option value="IS NOT NULL">APPROVED</option>
+                                        <option value="IS NULL">WAITING FOR APPROVAL</option>
+                                    </select>
+                                </div>
+                            </form>
+
                             <table id="list" class="table-bordered dt-responsive nowrap" style="width:100%">
                                 <thead class="font-weight-bold" style="background-color:#dad7d7">
                                     <tr>
@@ -57,6 +43,8 @@
                                 </thead>
 
                                 <tbody>
+
+                                    <!--Set Description for row status either Draft, Partial, Approved-->
                                     <?php foreach ($summary as $row) { $status = 'Draft';
                                         if ($row['myc'] == NULL && $row['hcc'] == NULL) {
                                             $status = 'Draft';
@@ -70,26 +58,34 @@
                                     ?>
 
                                     <tr>
+                                        <td class="text-center font-weight-bold"><a href="summary.php?document_id=<?php echo $row['document_id'] ?>" target="_blank" rel="noopener noreferrer"><?= $row['document_id'] ?></a></td>
+
                                         <td class="text-center font-weight-bold">
-                                            <?php if ($row['myc'] !== null && $row['hcc'] !== null): ?>
-                                                <span><?= $row['document_id'] ?></span>
-                                            <?php else: ?>
-                                                <a href="summary.php?document_id=<?php echo $row['document_id'] ?>" target="_blank" rel="noopener noreferrer"><?= $row['document_id'] ?></a>
-                                            <?php endif; ?>
+                                            <?php $originalDate = $row['created_date'];
+                                            $formattedDate = date("F j, Y, g:i A", strtotime($originalDate));
+                                            echo $formattedDate; ?>
                                         </td>
-                                        <td class="text-center font-weight-bold"><?= $row['created_date'] ?></td>
+                                        
                                         <td class="text-center font-weight-bold"><?= $row['username'] ?></td>
+                                        
+                                        <!--If table myc is not null show image-->
                                         <td class="text-center font-weight-bold">
                                             <?php if ($row['myc'] != NULL): ?>
                                                 <img src="assets/img/check.png" alt="View Image">
                                             <?php endif; ?>
                                         </td>
+
+                                        <!--If table hcc is not null show image-->
                                         <td class="text-center font-weight-bold">
                                             <?php if ($row['hcc'] != NULL): ?>
                                                 <img src="assets/img/check.png" alt="View Image">
                                             <?php endif; ?>
                                         </td>
+
+                                        <!--This part row status will be executed-->
                                         <td class="text-center font-weight-bold"><?= $status ?></td>
+
+                                        <!--This part will determine if tables myc or hcc has a value it will show description. if both myc and hcc has a value the user is allowed to print the price summary-->
                                         <td class="text-center font-weight-bold">
                                             <?php if ($row['myc'] == NULL && $row['hcc'] == NULL): ?>
                                             <!-- Handle this case -->
@@ -116,62 +112,63 @@
                                             <?php endif; ?>
                                         </td>
                                     </tr>
-                                <?php } ?>
-                            </tbody>
-                        </table>
-                    </div>    			  
-                </div>
-            </div>    			  
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>    			  
+                    </div>
+                </div>    			  
+            </section>
         </div>
-    </section>
-</div>
     
+        <script src="assets/js/jquery.min.js"></script>
+        <script src="assets/css/sweetalert2@11.css"></script>
+        <script src="assets/js/jquery-3.6.0.min.js"></script>
 
-<script src="assets/js/jquery.min.js"></script>
-<script src="assets/css/sweetalert2@11.css"></script>
-<script src="assets/js/jquery-3.6.0.min.js"></script>
+        <script>
 
-<script>
-    /*setInterval(function(){
-        $("#list").load(location.href + " #list>*","");
-    }, 5000); */ // refresh every 5 seconds
+            $(document).ready(function () {
+                $("button[name='cancel']").on("click", function () {
+                    var cancel1 = $(this).val();
+                    var id = $("input[name='id']").val();
 
-    $(document).ready(function () {
-            $("button[name='cancel']").on("click", function () {
-                var cancel = $(this).val();
-                var id = $("input[name='id']").val();
+                    $.ajax({
+                        type: "POST",
+                        url: "insert/cancel.php",
+                        data: { id: id, doc_status: cancel1 },
+                        success: function (response) {
+                            if (response === 'success') {
+                                Swal.fire({
+                                    title: "Info",
+                                    text: "PRICE SUMMARY HAS BEEN CANCELED",
+                                    icon: "info"
+                                }).then(function() {
+                                    window.location = "summarylist.php"; // Redirect to another page
+                                });
 
-                $.ajax({
-                    type: "POST",
-                    url: "insert/cancel.php",
-                    data: { id: id, cancel: cancel },
-                    success: function (response) {
-                        if (response === 'success') {
-                            Swal.fire({
-                                title: "Success",
-                                text: "Computed price has been Approved",
-                                icon: "success"
-                            }).then(function() {
-                                window.location = "summarylist.php"; // Redirect to another page
-                            });
-
-                        } else {
-                            Swal.fire({
-                                title: "Error",
-                                text: "Something went Wrong!",
-                                icon: "error"
-                            });
+                            } else {
+                                Swal.fire({
+                                    title: "Error",
+                                    text: "Something went Wrong!",
+                                    icon: "error"
+                                });
+                            }
+                        },
+                        error: function () {
+                            alert('AJAX request failed');
                         }
-                    },
-                    error: function () {
-                        alert('AJAX request failed');
-                    }
+                    });
+                });
+
+                //status function
+                $('#status').change(function () {
+                    $('#main').submit();
                 });
             });
-        });
-</script>
 
-<?php include("includes/footer.php"); ?>
+        </script>
+
+    <?php include("includes/footer.php"); ?>
 
 </body>
 </html>

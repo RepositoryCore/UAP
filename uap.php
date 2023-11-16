@@ -54,7 +54,7 @@
                 </div>
             </div>
 
-            <?php if ($user_id == 1) { ?>
+            <?php if ($user_id == 1 || $user_id == 4) { ?>
                 <div class="row icon-boxes justify-content-center">
                     <div class="col-md-6 col-lg-3 d-flex align-items-stretch mb-5 mb-lg-0" data-aos="zoom-in" data-aos-delay="200">
                         <div class="icon-box">

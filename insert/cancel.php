@@ -10,17 +10,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Check if the required POST data exists
-        if (isset($_POST["id"]) && isset($_POST["cancel"])) {
+        if (isset($_POST["id"]) && isset($_POST["doc_status"])) {
             // Get the values from the POST data
             $id = $_POST["id"];
-            $cancel = $_POST["cancel"];
+            $cancel1 = $_POST["doc_status"];
 
             // Prepare an SQL query to update the database
-            $sql = "UPDATE [tuc].[For_Approval_list] SET status = :cancel WHERE document_id = :id";
+            $sql = "UPDATE [tuc].[For_Approval_list] SET doc_status = :cancel WHERE document_id = :id";
             $stmt = $pdo->prepare($sql);
 
             // Bind parameters
-            $stmt->bindParam(':cancel', $cancel, PDO::PARAM_STR);
+            $stmt->bindParam(':cancel', $cancel1, PDO::PARAM_STR);
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
             // Execute the query

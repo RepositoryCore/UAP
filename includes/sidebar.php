@@ -20,9 +20,16 @@
 
             <ul class="navbar-nav ml-auto">
 
-                <!--li class="nav-item">
-                    <span class="nav-link font-weight-bold" style="font-size: 13px" id="dateYana"></span>
-                </!li-->
+                <?php if($user_id == 4 || $user_id == 59) { ?>
+                    <li class="nav-item">
+                        <span class="nav-link text-black font-weight-bold" style="font-size: 14px">&#128105; <?php echo $user_name ?></span>
+                    </li>
+                <?php } else { ?>
+                    <li class="nav-item">
+                        <span class="nav-link text-black font-weight-bold" style="font-size: 14px">&#128104; <?php echo $user_name ?></span>
+                    </li>
+                <?php } ?>    
+
                 <li class="nav-item">
                     <a class="nav-link" data-widget="fullscreen" href="#" role="button">
                         <i class="fa-solid fa-expand fa-xl"></i>
@@ -47,7 +54,7 @@
                                     <i class="nav-icon fa-solid fa-tag"></i><del> Cement Pricing</del>
                                 </a>
                             </!li-->
-                        <?php if ($user_id == 1) { ?>
+                        <?php if ($user_id == 1 || $user_id == 4) { ?>
 
                             <li class="nav-item">
                                 <a href="priceanalysis.php" class="nav-link text-white font-weight-bold">
